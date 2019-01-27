@@ -1,0 +1,16 @@
+{
+    "name": "typeusage",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/src/index.js",
+    "scripts": {
+        "test": ""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/node": ">8.0.0",
+        "typescript": ">3.0.0"
+    }
+}
