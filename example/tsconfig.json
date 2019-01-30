@@ -7,11 +7,10 @@
         "strict": true,
         "plugins": [
             {
-                "transform": "../transformer.ts",
+                "transform": "../src/transformer.ts",
                 "schema": "schema.d.ts",
-                "outFile": "types.js",
+                "outFile": "types.js"
             }
         ]
-    },
-    "exclude": ["node_modules"]
+    }
 }

@@ -1,5 +1,5 @@
 import { showUserName } from './hey';
-import { Product, Guest, User, getProduct } from './schema';
+import { Product, Guest, User, getProduct, getProductAsync } from './schema';
 
 // var product = getProduct(usage<Product>());
 var product = getProduct<Auto>();
@@ -24,6 +24,30 @@ function outGust(user: Guest) {
 //         }
 //     });
 // }
+
+async function main() {
+    // const p = await getProductAsync<Auto>();
+    // p.name;
+}
+abstract class Base {
+    async use() {
+        // const res = await this.send();
+        // res.name;
+    }
+    abstract send(): Promise<Product>;
+}
+class ProductForm extends Base {
+     async send() {
+        return getProductAsync<Auto>();
+    }
+}
+
+async function use() {
+    var x = await new ProductForm().send();
+    x.name;
+}
+
+function getProductPromise() {}
 
 function outUser(user: User | Guest) {
     if (user.__typename === 'Guest') {

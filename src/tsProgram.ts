@@ -1,19 +1,15 @@
 import { dirname } from 'path';
 import {
+    CompilerOptions,
     createCompilerHost,
     createProgram,
     CreateProgramOptions,
     findConfigFile,
-    ParsedCommandLine,
     parseJsonConfigFileContent,
     Program,
     readConfigFile,
     SourceFile,
     sys,
-    CompilerOptions,
-    ProjectReference,
-    CompilerHost,
-    Diagnostic,
 } from 'typescript';
 declare module 'typescript' {
     export function changeCompilerHostToUseCache(

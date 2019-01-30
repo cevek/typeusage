@@ -43,6 +43,9 @@ export function extractor() {
     }
 
     function getType(checker: ts.TypeChecker, nullableType: ts.Type): Type | undefined {
+        if (nullableType.symbol && nullableType.symbol.name === 'Promise') {
+            return getType(checker, (nullableType as ts.TypeReference).typeArguments![0]);
+        }
         const type = checker.getNonNullableType(nullableType);
         if (
             checker.isArrayLikeType(type) &&
@@ -68,6 +71,8 @@ export function extractor() {
                 });
             }
         }
+
+        // if (ts.isRefer)
 
         if (type.isUnion()) {
             const id = checker.typeToString(type);
@@ -111,7 +116,6 @@ export function extractor() {
                 members[prop.name] = _getType(checker, propType);
             }
             const typename = members.__typename;
-            if (!typename || typename.kind !== TypeKind.Primitive) throw never();
             return registry.add({
                 id,
                 kind: TypeKind.Object,
@@ -119,7 +123,7 @@ export function extractor() {
                 members: members,
                 root: false,
                 used: false,
-                typename: typename.value,
+                typename: typename && typename.kind === TypeKind.Primitive ? typename.value : undefined,
             });
         }
     }
@@ -212,7 +216,6 @@ export function extractor() {
         ts.forEachChild(node, n => usageCollector(n, checker));
     }
 
-    
     const usedTypes = new Set<Type>();
     return {
         roots: () =>
@@ -233,7 +236,8 @@ export function extractor() {
 }
 
 export function getId(sourceFile: ts.SourceFile, node: ts.Node, projectDir: string) {
-    return config.type.idPrefix + `${relative(projectDir, sourceFile.fileName)}:${node.pos}`;
+    const {line, character} = ts.getLineAndCharacterOfPosition(sourceFile, node.pos);
+    return config.type.idPrefix + `${relative(projectDir, sourceFile.fileName)}:${line}:${character}`;
 }
 
 // const checker = program.getTypeChecker();
@@ -261,3 +265,4 @@ export function getId(sourceFile: ts.SourceFile, node: ts.Node, projectDir: stri
 // interface X {
 //     name: 'string';
 // }
+

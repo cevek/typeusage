@@ -1,4 +1,3 @@
-
 export const enum TypeKind {
     Primitive = 'Primitive',
     Object = 'Object',
@@ -18,7 +17,7 @@ interface BaseType {
 
 export interface ObjectType extends BaseType {
     kind: TypeKind.Object;
-    typename: string;
+    typename: string | undefined;
     root: boolean;
     members: { [key: string]: Type };
 }
@@ -90,6 +89,8 @@ export function addMember(parentType: Type, key: string, value: Type) {
 export function mergeTypes(type: Type, targetType: Type, usedTypes: Set<Type>): Type {
     if (type !== targetType) targetType.aliases.add(type);
     if (type.used || targetType.used) {
+        // type.used = true;
+        targetType.used = true;
         usedTypes.add(type);
         usedTypes.add(targetType);
     }
@@ -138,6 +139,7 @@ export function mergeTypes(type: Type, targetType: Type, usedTypes: Set<Type>): 
 //     type.aliases.forEach(alias => addToUsage(alias, usedTypes));
 // }
 export function toObject(type: Type, usedTypes: Set<Type>): {} {
+    debugger;
     if (type.kind === TypeKind.Primitive) {
         return type.value;
     }
@@ -156,7 +158,9 @@ export function toObject(type: Type, usedTypes: Set<Type>): {} {
             for (const element of type.union) {
                 if (element.used && usedTypes.has(element)) {
                     if (!obj.__on) obj.__on = {};
-                    obj.__on[element.typename] = toObject(element, usedTypes);
+                    if (element.typename) {
+                        obj.__on[element.typename] = toObject(element, usedTypes);
+                    }
                 }
             }
         }
