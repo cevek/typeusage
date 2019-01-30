@@ -4,18 +4,17 @@ import { readFileSync, writeFileSync } from 'fs';
 import { Type } from './vtype';
 import { extractor } from './extractTypes';
 
-export function watch(projectDir: string, schemaFile: string, outFile: string) {
+export function watch(projectDir: string, schemaFile: string, exceptTypes: string[], outFile: string) {
     const tsconfigPath = projectDir + '/tsconfig.json';
     const transformedFiles = new WeakSet<ts.SourceFile>();
-    const typeNames = getRootTypesFromSchemaFile(schemaFile);
-    console.log('visitor', typeNames);
+    const typeNames = getRootTypesFromSchemaFile(schemaFile, exceptTypes);
+    let prevOutFileContent = '';
 
     const watchHost = ts.createWatchCompilerHost(tsconfigPath, { noEmit: true, skipLibCheck: true }, ts.sys);
     watchHost.onWatchStatusChange = () => {};
     patchCreateProgram(watchHost);
     watchHost.afterProgramCreate = builderProgram => {
         // create file types.js if needed
-        console.log('afterProgramCreate1');
         const extract = extractor();
         const typeChecker = builderProgram.getProgram().getTypeChecker();
         builderProgram.getSourceFiles().forEach(sourceFile => {
@@ -37,15 +36,20 @@ export function watch(projectDir: string, schemaFile: string, outFile: string) {
                 ';\n';
             s;
         }
-        writeFileSync(outFile, s);
+        if (prevOutFileContent !== s) {
+            prevOutFileContent = s;
+            writeFileSync(outFile, s);
+        }
     }
 
-    function getRootTypesFromSchemaFile(file: string) {
+    function getRootTypesFromSchemaFile(file: string, exceptTypes: string[]) {
         const typeNames = new Set();
         const schemeSource = ts.createSourceFile('schema.d.ts', readFileSync(file, 'utf8'), ts.ScriptTarget.ESNext);
         schemeSource.statements.forEach(st => {
             if (ts.isInterfaceDeclaration(st) || ts.isEnumDeclaration(st) || ts.isTypeAliasDeclaration(st)) {
-                typeNames.add(st.name.text);
+                if (!exceptTypes.includes(st.name.text)) {
+                    typeNames.add(st.name.text);
+                }
             }
         });
         return typeNames;

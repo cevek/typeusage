@@ -2,9 +2,12 @@
     "name": "typeusage",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/src/index.js",
+    "types": "dist/index",
+    "main": "dist/index.js",
     "scripts": {
-        "test": ""
+        "test": "",
+        "build": "npx tsc -p src",
+        "prepublish": "npm run build"
     },
     "keywords": [],
     "author": "",
