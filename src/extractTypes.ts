@@ -144,11 +144,13 @@ export function extractor() {
         }
         // console.log(ts.SyntaxKind[node.kind]);
         if (ts.isPropertyAccessExpression(node)) {
+            // console.log('prop access', node.name.text);
+            // if (node.name.text === 'id') debugger;
             const expr = getTypeFromNode(checker, node.expression, false);
             if (expr) {
                 expr.used = true;
                 if (expr.kind !== TypeKind.Array) {
-                    console.log('a.b: ', node.name.text);
+                    // console.log('a.b: ', node.name.text);
                     const key = addMember(
                         expr,
                         node.name.text,

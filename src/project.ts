@@ -6,7 +6,7 @@ import { extractor } from './extractTypes';
 
 export function watch(projectDir: string, schemaFile: string, exceptTypes: string[], outFile: string) {
     const tsconfigPath = projectDir + '/tsconfig.json';
-    const transformedFiles = new WeakSet<ts.SourceFile>();
+    const transformedFiles = new WeakMap<ts.SourceFile, ts.SourceFile>();
     const typeNames = getRootTypesFromSchemaFile(schemaFile, exceptTypes);
     let prevOutFileContent = '';
 
@@ -14,7 +14,7 @@ export function watch(projectDir: string, schemaFile: string, exceptTypes: strin
     watchHost.onWatchStatusChange = () => {};
     patchCreateProgram(watchHost);
     watchHost.afterProgramCreate = builderProgram => {
-        // create file types.js if needed
+        // console.log('afterProgramCreate');
         const extract = extractor();
         const typeChecker = builderProgram.getProgram().getTypeChecker();
         builderProgram.getSourceFiles().forEach(sourceFile => {
@@ -36,6 +36,7 @@ export function watch(projectDir: string, schemaFile: string, exceptTypes: strin
                 ';\n';
             s;
         }
+        // console.log(s);
         if (prevOutFileContent !== s) {
             prevOutFileContent = s;
             writeFileSync(outFile, s);
@@ -57,13 +58,13 @@ export function watch(projectDir: string, schemaFile: string, exceptTypes: strin
 
     function preTransformer(sourceFile: ts.SourceFile | undefined) {
         if (!sourceFile) return;
-        if (transformedFiles.has(sourceFile)) return sourceFile;
+        if (transformedFiles.has(sourceFile)) return transformedFiles.get(sourceFile);
         if (sourceFile.isDeclarationFile) return sourceFile;
-        transformedFiles.add(sourceFile);
 
-        console.log('transform ' + sourceFile.fileName);
+        // console.log('transform ' + sourceFile.fileName);
         const newFile = replaceEntities(projectDir, sourceFile, typeNames);
         // console.log(newFile.text)
+        transformedFiles.set(sourceFile, newFile);
         return newFile;
     }
 

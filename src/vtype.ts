@@ -139,7 +139,6 @@ export function mergeTypes(type: Type, targetType: Type, usedTypes: Set<Type>): 
 //     type.aliases.forEach(alias => addToUsage(alias, usedTypes));
 // }
 export function toObject(type: Type, usedTypes: Set<Type>): {} {
-    debugger;
     if (type.kind === TypeKind.Primitive) {
         return type.value;
     }
