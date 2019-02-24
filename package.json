@@ -7,10 +7,15 @@
     "scripts": {
         "test": "",
         "build": "npx tsc -p src",
-        "prepublish": "npm run build"
+        "prepublish": "rm -rf dist && npm run build"
     },
+    "files": [
+        "dist",
+        "graphql.js",
+        "graphql.d.ts"
+    ],
     "keywords": [],
-    "author": "",
+    "author": "cevek",
     "license": "ISC",
     "dependencies": {
         "@types/node": ">8.0.0",

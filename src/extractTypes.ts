@@ -1,7 +1,7 @@
-import { relative, resolve, dirname } from 'path';
+import {relative, resolve, dirname} from 'path';
 import * as ts from 'typescript';
-import { config } from './config';
-import { addMember, createRegistry, mergeTypes, never, nonNull, ObjectType, toObject, Type, TypeKind } from './vtype';
+import {config} from './config';
+import {addMember, createRegistry, mergeTypes, never, nonNull, ObjectType, toObject, Type, TypeKind} from './vtype';
 
 declare module 'typescript' {
     interface TypeChecker {
@@ -16,7 +16,7 @@ export function extractor() {
         checker: ts.TypeChecker,
         node: ts.Expression,
         contextual: boolean,
-        createIfNotFound = false
+        createIfNotFound = false,
     ) {
         const type = (contextual && checker.getContextualType(node)) || checker.getTypeAtLocation(node);
         return createIfNotFound ? _getType(checker, type) : getType(checker, type);
@@ -89,7 +89,7 @@ export function extractor() {
                 }
             }
             if (subTypes.length > 0) {
-                const members: { [key: string]: Type } = {};
+                const members: {[key: string]: Type} = {};
                 for (const prop of type.getProperties()) {
                     const propType = checker.getTypeOfSymbolAtLocation(prop, prop.declarations[0]);
                     members[prop.name] = _getType(checker, propType);
@@ -154,7 +154,7 @@ export function extractor() {
                     const key = addMember(
                         expr,
                         node.name.text,
-                        nonNull(getTypeFromNode(checker, node.name, true, true))
+                        nonNull(getTypeFromNode(checker, node.name, true, true)),
                     );
                     key.used = true;
                 }
@@ -181,8 +181,9 @@ export function extractor() {
             const signature = checker.getResolvedSignature(node);
             if (signature) {
                 if (node.typeArguments) {
-                    const typeArg = node.typeArguments[0];
+                    const typeArg: ts.TypeNode | undefined = node.typeArguments[0];
                     if (
+                        typeArg &&
                         ts.isLiteralTypeNode(typeArg) &&
                         ts.isStringLiteral(typeArg.literal) &&
                         typeArg.literal.text.substr(0, config.type.idPrefix.length) === config.type.idPrefix
@@ -223,7 +224,7 @@ export function extractor() {
         roots: () =>
             registry
                 .getRoots()
-                .map(type => ({ type: type, obj: toObject(mergeTypes(type, type, usedTypes), usedTypes) })),
+                .map(type => ({type: type, obj: toObject(mergeTypes(type, type, usedTypes), usedTypes)})),
         registry,
         getNonUsedTypes() {
             // console.log(registry.typeRegistry);
@@ -267,4 +268,3 @@ export function getId(sourceFile: ts.SourceFile, node: ts.Node, projectDir: stri
 // interface X {
 //     name: 'string';
 // }
-
