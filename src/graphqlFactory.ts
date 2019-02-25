@@ -1,3 +1,5 @@
+import { Auto, Usage } from "./globals";
+
 export function graphqlFactory<T extends object>(fetchGraphqlQuery: (query: string) => any) {
     const obj = {} as TransformMethods<T>;
     return new Proxy<TransformMethods<T>>(obj, {

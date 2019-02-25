@@ -1,6 +1,6 @@
 {
     "name": "typeusage",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "",
     "types": "dist/index",
     "main": "dist/index.js",
